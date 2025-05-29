@@ -6,6 +6,6 @@ const { jwtAuthMiddleware } = require('../middleware/authUser')
 router.post('/register', createUser)
 router.post('/login', loginUser)
 router.get('/userProfile', jwtAuthMiddleware, myProfile)
-router.put('updateMyProfile', jwtAuthMiddleware, updateMyProfile)
+router.put('/updateMyProfile', jwtAuthMiddleware, updateMyProfile)
 
 module.exports = router
