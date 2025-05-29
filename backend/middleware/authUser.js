@@ -24,3 +24,11 @@ const jwtAuthMiddleware = (req, res, next) => {
         res.status(401).json({ error: 'Invalid Token' })
     }
 }
+
+// Function to generate JWT token
+const generateToken = (userData) => {
+    // Generate a new JWT token using user data
+    return jwt.sign(userData, process.env.JWT_SECRET);
+}
+
+module.exports = {jwtAuthMiddleware, generateToken}

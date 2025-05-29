@@ -11,11 +11,13 @@ const userSchema = new mongoose.Schema({
         type: String        
     },
   role: { 
-    type: String,
-    enum: ['admin', 'manager', 'staff', 'guest'], 
-    default: 'guest' 
+    type: String,    
+    default: 'user' 
 },
-  address: String
+phone:{
+  type: Number
+},
+  address: {type:String}
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
