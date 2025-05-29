@@ -9,9 +9,11 @@ app.use(cors());
 
 
 const userRoutes = require('./routes/userRoutes')
+const adminRoutes = require('./routes/AdminRoutes.js')
 
 // routes
 app.use("/api", userRoutes)
+app.use('/api', adminRoutes)
 
 const PORT = process.env.PORT || 8001
 app.listen(PORT, () => {
