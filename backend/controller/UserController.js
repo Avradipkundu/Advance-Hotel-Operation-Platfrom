@@ -40,7 +40,7 @@ const loginUser = async (req, res) => {
 
     const payload = {
       id: user._id,
-      role:user.role
+      role: user.role
     }
     console.log(JSON.stringify(payload))
     const token = generateToken(payload);
@@ -54,12 +54,12 @@ const loginUser = async (req, res) => {
   }
 }
 
-const myProfile = async(req,res)=>{
+const myProfile = async (req, res) => {
   try {
     const userData = req.user
     console.log("User data: ", userData);
     const userId = userData.id
-    const user = await User.findById(userId) 
+    const user = await User.findById(userId)
     res.status(200).json({ user });
     console.log(user)
   } catch (error) {
@@ -68,8 +68,28 @@ const myProfile = async(req,res)=>{
   }
 }
 
+const updateMyProfile = async (req, res) => {
+  try {
+    const userData = req.user
+    const { name, email, phone, address } = req.body;
+    const user = await User.findById({ userData })
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
+    await user.save();
+    return res.status(200).json({ user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "internal server error" })
+  }
+}
 module.exports = {
   createUser,
   loginUser,
-  myProfile
+  myProfile,
+  updateMyProfile
 }
