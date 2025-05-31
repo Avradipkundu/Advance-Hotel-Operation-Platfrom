@@ -50,7 +50,7 @@ const loginAdmin = async (req, res) => {
     console.log("Token is: ", token);
 
     // return token as response
-    res.status(201).json({ token: token })
+    res.status(200).json({ token: token ,success: true, msg: "Login successfull" })
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "internal server error" })
