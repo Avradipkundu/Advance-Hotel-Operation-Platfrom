@@ -25,7 +25,10 @@ function Login() {
                 localStorage.setItem('token', data.token);
                 toast.success(`${data.msg}`);
                 navigate('/dashboard');
-            }            
+            }   
+            else{
+                toast.error("login failed")
+            }         
         } catch (error) {
             console.log(error)
         }
