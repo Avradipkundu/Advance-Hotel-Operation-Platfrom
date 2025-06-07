@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { 
-  Home, 
-  Bed, 
-  Calendar, 
-  Users, 
-  BarChart3, 
-  Settings, 
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Home,
+  Bed,
+  Calendar,
+  Users,
+  BarChart3,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -26,6 +26,12 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  }
 
   // Simulate API call
   useEffect(() => {
@@ -67,18 +73,16 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <div className={`bg-white shadow-lg transition-all duration-300 ${
-        sidebarOpen ? 'w-64' : 'w-20'
-      } lg:w-64 flex flex-col`}>
+      <div className={`bg-white shadow-lg transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'
+        } lg:w-64 flex flex-col`}>
         {/* Logo/Brand */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Home className="w-5 h-5 text-white" />
             </div>
-            <span className={`font-bold text-xl text-gray-800 transition-opacity ${
-              sidebarOpen ? 'opacity-100' : 'opacity-0'
-            } lg:opacity-100`}>
+            <span className={`font-bold text-xl text-gray-800 transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0'
+              } lg:opacity-100`}>
               Hotel Admin
             </span>
           </div>
@@ -90,21 +94,19 @@ const AdminDashboard = () => {
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
-              
+
               return (
                 <li key={item.name}>
                   <Link
                     to={item.href}
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-                      isActive
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${isActive
                         ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
                         : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     <Icon className="w-5 h-5 flex-shrink-0" />
-                    <span className={`transition-opacity ${
-                      sidebarOpen ? 'opacity-100' : 'opacity-0'
-                    } lg:opacity-100`}>
+                    <span className={`transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0'
+                      } lg:opacity-100`}>
                       {item.name}
                     </span>
                   </Link>
@@ -120,16 +122,14 @@ const AdminDashboard = () => {
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
               <Users className="w-4 h-4 text-gray-600" />
             </div>
-            <div className={`transition-opacity ${
-              sidebarOpen ? 'opacity-100' : 'opacity-0'
-            } lg:opacity-100`}>
+            <div className={`transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0'
+              } lg:opacity-100`}>
               <p className="text-sm font-medium text-gray-700">Admin User</p>
               <p className="text-xs text-gray-500">admin@hotel.com</p>
             </div>
           </div>
-          <button className={`mt-3 flex items-center space-x-2 text-red-600 hover:text-red-700 transition-opacity ${
-            sidebarOpen ? 'opacity-100' : 'opacity-0'
-          } lg:opacity-100`}>
+          <button onClick={handleLogout} className={`mt-3 flex items-center space-x-2 text-red-600 hover:text-red-700 transition-opacity cursor-pointer ${sidebarOpen ? 'opacity-100' : 'opacity-0'
+            } lg:opacity-100`}>
             <LogOut className="w-4 h-4" />
             <span className="text-sm">Logout</span>
           </button>
@@ -150,7 +150,7 @@ const AdminDashboard = () => {
               </button>
               <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -208,20 +208,20 @@ const AdminDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-xl font-semibold mb-4 text-gray-900">Recent Activity</h3>
             <div className="space-y-4">
-              <ActivityItem 
-                title="New Booking Received" 
+              <ActivityItem
+                title="New Booking Received"
                 description="Booking #BK12345 - Room 101 (Confirmed)"
                 time="5 minutes ago"
                 type="booking"
               />
-              <ActivityItem 
-                title="Staff Task Assigned" 
+              <ActivityItem
+                title="Staff Task Assigned"
                 description="New task assigned to Housekeeping Team"
                 time="1 hour ago"
                 type="staff"
               />
-              <ActivityItem 
-                title="Room Status Updated" 
+              <ActivityItem
+                title="Room Status Updated"
                 description="Room 205 marked as 'Maintenance'"
                 time="2 hours ago"
                 type="room"
@@ -248,8 +248,8 @@ const ManagementCard = ({ title, description, linkTo, buttonText, icon: Icon }) 
       <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
     </div>
     <p className="text-gray-600 mb-4">{description}</p>
-    <Link 
-      to={linkTo} 
+    <Link
+      to={linkTo}
       className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
     >
       {buttonText}

@@ -3,6 +3,7 @@ import { ToastContainer } from 'react-toastify'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import RoomManagement from './components/AddRooms'
+import ProtectedRoutes from './utils/PrivateRoute'
 
 function App() {  
 
@@ -11,7 +12,7 @@ function App() {
       <BrowserRouter>
       <Routes>          
           <Route path='/' element={<Login />}/>          
-          <Route path='/dashboard' element={<Dashboard/>}/>          
+          <Route path='/dashboard' element={<ProtectedRoutes><Dashboard /></ProtectedRoutes>}/>          
           <Route path='/admin/rooms' element={<RoomManagement/>}/>          
         </Routes>
       </BrowserRouter>

@@ -13,8 +13,7 @@ function Login() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
+        e.preventDefault();       
             const response = await fetch('http://localhost:8000/api/adminLogin', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -28,10 +27,7 @@ function Login() {
             }   
             else{
                 toast.error("login failed")
-            }         
-        } catch (error) {
-            console.log(error)
-        }
+            }                 
     }
     return (
         <div className='bg-gradient-to-r from-purple-100 to-purple-100 ... flex justify-center items-center min-h-screen'>
