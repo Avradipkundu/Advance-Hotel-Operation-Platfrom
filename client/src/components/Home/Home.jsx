@@ -62,8 +62,8 @@ const Home = () => {
                     {/* Hero Section */}
                     <div className="flex items-center justify-center h-screen text-center">
                         <div>
-                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">Welcome to HotelStay</h1>
-                            <p className="text-2xl sm:text-3xl text-white opacity-90">Find your perfect room</p>
+                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6 font-serif">Welcome to HotelStay</h1>
+                            <p className="text-2xl sm:text-3xl text-white font-extralight opacity-90">Find your perfect room</p>
                         </div>
                     </div>
                 </div>
@@ -90,8 +90,6 @@ const Home = () => {
         </div >
         </>
     );
-
-
 };
 
 export default Home;

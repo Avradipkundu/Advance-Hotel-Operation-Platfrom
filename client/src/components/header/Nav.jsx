@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AlignJustify, X, Hotel } from 'lucide-react'
 
 const LandingNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation()
+
+  const navLinks = [
+    { name: "Home", path: "" },
+    { name: "Rooms", path: "rooms" },
+    { name: "Features", path: "features" },
+    { name: "About", path: "about" }
+  ];
 
   useEffect(() => {
+    if (location.pathname !== '/') {
+      setScrolled(true);   // Force navbar to solid color on route change 
+      return;
+    } else {
+      setScrolled(false)
+    }
+    setScrolled(prev => location.pathname !== '/' ? true : prev)
     const handleScroll = () => {
       setScrolled(window.scrollY >= 20);
     };
@@ -17,7 +32,7 @@ const LandingNavbar = () => {
       window.removeEventListener('scroll', handleScroll);
       document.body.style.overflow = 'auto';
     }
-  }, [menuOpen]);
+  }, [menuOpen, location.pathname]);
 
   return (
     <nav className={`fixed w-full top-0 z-50 transition-colors duration-300 ${scrolled ? 'bg-gray-800 shadow-md' : 'bg-transparent backdrop-blur-md '
@@ -33,28 +48,28 @@ const LandingNavbar = () => {
         </div>
 
         <div className="lg:hidden">
-          <button onClick={() => setMenuOpen(!menuOpen)} className="text-gray-700 focus:outline-none">
+          <button onClick={() => setMenuOpen(!menuOpen)} className="text-white font-bold focus:outline-none">
             {menuOpen ? <X /> : <AlignJustify />}
           </button>
         </div>
 
         <div
-          className={`lg:flex lg:items-center lg:gap-6 ${menuOpen ? 'fixed flex flex-col items-center justify-center h-screen bg-white z-50 gap-6' : 'hidden'
+          className={`lg:flex lg:items-center lg:gap-6 ${menuOpen ? 'fixed flex flex-col items-center justify-center h-screen bg-gray-700 z-50 gap-6' : 'hidden'
             } absolute lg:static top-16 left-0 w-full lg:w-auto p-4 lg:p-0 shadow lg:shadow-none transition-all duration-300 ease-in-out`}
         >
-          {['Home', 'Rooms', 'Features', 'About'].map((item) => (
+          {navLinks.map((item, i) => (
             <Link
-              key={item}
-              to={`/${item.toLowerCase()}`}
+              key={i}
+              to={`/${item.path.toLowerCase()}`}
               onClick={() => setMenuOpen(false)} // Close menu on link click
               className={`block px-4 py-2 font-bold ${menuOpen
-                  ? 'text-gray-800 hover:text-amber-700 transition ease-in-out'
-                  : scrolled
-                    ? 'text-gray-400 hover:text-amber-700 hover:shadow-lg'
-                    : 'text-white hover:text-amber-800 hover:shadow-lg'
+                ? 'text-white hover:text-amber-700 transition ease-in-out'
+                : scrolled
+                  ? 'text-gray-400 hover:text-amber-700 hover:shadow-lg'
+                  : 'text-white hover:text-amber-800 hover:shadow-lg'
                 } hover:bg-gray-200 rounded-xl transition ease-in-out duration-300`}
             >
-              {item}
+              {item.name}
             </Link>
           ))}
 
