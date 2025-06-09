@@ -4,7 +4,7 @@ import { Hotel } from 'lucide-react'
 
 export default function Footer() {
     return (
-        <footer className="bg-[#f6f9fc] ">
+        <footer className="bg-[#d1d5dc] ">
             <div className="mx-auto w-full max-w-screen-xl p-4 py-8 md:px-16 lg:py-12 lg:px-24">
                 <div className="flex flex-col md:flex-row md:justify-between gap-8">
                     <div className="mb-6 mt-4 md:mb-0 flex-1 min-w-[220px]">
