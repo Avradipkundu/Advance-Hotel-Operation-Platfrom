@@ -1,14 +1,17 @@
 const mongoose = require('mongoose');
 
 const roomSchema = new mongoose.Schema({
-  roomNumber: { type: String, unique: true },
-  type: String, // single, double, deluxe
-  price: Number,
-  amenities: [String],
+  roomNo: { type: String, unique: true },
   image:{
     type:String
   },
-  status: { type: String, enum: ['available', 'booked', 'maintenance', 'cleaning'], default: 'available' }
+  name: {type: String,},
+  type: String, // single, double, luxury, family suite
+  price: Number,
+  rating: Number,
+  features: [String],
+  status: { type: String, enum: ['available', 'booked', 'maintenance', 'cleaning'], default: 'available' },
+  description: {type: String}
 }, { timestamps: true });
 
 module.exports = mongoose.model('Room', roomSchema);
