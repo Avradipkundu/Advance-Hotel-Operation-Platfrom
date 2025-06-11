@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AlignJustify, X, Hotel } from 'lucide-react'
+import Login from '../../pages/Login';
 
 const LandingNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation()
 
@@ -34,7 +36,17 @@ const LandingNavbar = () => {
     }
   }, [menuOpen, location.pathname]);
 
+   const openLogin = () => {
+    setShowLogin(true);
+    setMenuOpen(false);
+  };
+
+  const closeLogin = () => {
+    setShowLogin(false);
+  };
+
   return (
+    <>
     <nav className={`fixed w-full top-0 z-50 transition-colors duration-300 ${scrolled ? 'bg-gray-800 shadow-md' : 'bg-transparent backdrop-blur-md '
       }`}>
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -73,22 +85,24 @@ const LandingNavbar = () => {
             </Link>
           ))}
 
-          <div className="lg:ml-4 mt-2 lg:mt-0 px-4">
-            <Link
-              to="/login"
-              onClick={() => setMenuOpen(false)}
+          <div className="lg:ml-4 mt-2 lg:mt-0 px-4">                  
+            <button onClick={openLogin}  
+              
               className={`inline-block font-bold px-4 py-2 rounded-lg transition duration-300 ease-in-out hover:scale-105 shadow ${scrolled
                 ? 'bg-indigo-500 text-white hover:bg-indigo-700'
                 : 'bg-white text-indigo-600 hover:bg-indigo-100'
                 }`}
             >
               Login
-            </Link>
+              </button>            
           </div>
         </div>
 
       </div>
     </nav >
+    {/* Login Modal */}
+      <Login isOpen={showLogin} onClose={closeLogin} />
+    </>
   );
 };
 

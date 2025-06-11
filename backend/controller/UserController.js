@@ -5,11 +5,16 @@ const bcrypt = require('bcrypt')
 
 const createUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body
+    const { name, email, password, confirmPassword } = req.body
     
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return res.status(400).json({ error: 'Email already exists' })
+    }
+
+    if(password!==confirmPassword)
+    {
+      return res.status(400).json({message:'Password mismatch'});
     }
 
     if (!email || !password) {
