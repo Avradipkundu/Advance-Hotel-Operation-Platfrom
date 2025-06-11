@@ -1,9 +1,25 @@
 const fs = require('fs')
 const Room = require('../models/Room.js')
+const Admin = require('../models/Admin.js')
 
 const allRooms = async (req, res) => {
     try {
         const data = await Room.find()
+        console.log("data fetched")
+        console.log(data)
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(400).json({ message: err.message });
+    }
+}
+// get record by id
+const roomById = async (req, res) => {
+    try {
+        const roomId = req.params.id
+        const data = await Room.findById(roomId)
+        if(!data){
+        res.status(404).json("error: room not found")
+        }
         console.log("data fetched")
         console.log(data)
         res.status(200).json(data)
@@ -19,7 +35,7 @@ const addRooms = async (req, res) => {
         const room = new Room({ roomNo, image, name, type, price, features, description })
         await room.save();
         console.log(room)
-        res.status(201).json(newUser);
+        res.status(201).json(room);
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: "internal server error" })
@@ -28,19 +44,24 @@ const addRooms = async (req, res) => {
 
 const updateRooms = async (req, res) => {
     try {
-        const userId = req.params.id
+        const roomId = req.params.id
         const updateData = { ...req.body };
+        const admin = req.user.id
+        const user = await Admin.findById(admin)
+        if(!(user.role === 'admin')){
+            return res.status(400).json({ error: 'user does not have admin role' })
+        }
         if (req.file) {
             updateData.image = req.file.filename; // ✅ Add the image filename to the update
         }
-        const user = await Room.findByIdAndUpdate(userId, updateData, {
+        const room = await Room.findByIdAndUpdate(roomId, updateData, {
             new: true
         })
-        if (!user) {
-            res.status(404).json("error: user not find")
+        if (!room) {
+            res.status(404).json({error: "user not find"})
         }
         console.log("data updated");
-        res.status(200).json(user)
+        res.status(200).json(room)
     } catch (error) {
         res.status(400).json({ message: err.message });
     }
@@ -48,13 +69,17 @@ const updateRooms = async (req, res) => {
 
 const deleteRooms = async (req, res) => {
     try {
-        const userId = req.params.id
-        const user = await Room.findByIdAndDelete(userId)
-
-        if (!user) {
-            res.status(404).json("error: user not find")
+        const roomId = req.params.id
+        const room = await Room.findByIdAndDelete(roomId)
+        const admin = req.user.id
+        const user = await Admin.findById(admin)
+        if(!(user.role === 'admin')){
+            return res.status(400).json({ error: 'user does not have admin role' })
         }
-        const userPhotoInfo = user.image;
+        if (!room) {
+            res.status(404).json({error: "room not found"})
+        }
+        const userPhotoInfo = room.image;
         if (userPhotoInfo) {
             fs.unlinkSync("uploads/" + userPhotoInfo);
         }
@@ -67,6 +92,7 @@ const deleteRooms = async (req, res) => {
 
 module.exports = {
     allRooms,
+    roomById,
     addRooms,
     updateRooms,
     deleteRooms,
