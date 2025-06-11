@@ -6,8 +6,7 @@ const bcrypt = require('bcrypt')
 const createUser = async (req, res) => {
   try {
     const { name, email, password } = req.body
-
-    // Check if an admin already exists
+    
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return res.status(400).json({ error: 'Email already exists' })
@@ -70,9 +69,9 @@ const myProfile = async (req, res) => {
 
 const updateMyProfile = async (req, res) => {
   try {
-    const userData = req.user
+    const userData = req.user.id
     const { name, email, phone, address } = req.body;
-    const user = await User.findById({ userData })
+    const user = await User.findById(userData)
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
