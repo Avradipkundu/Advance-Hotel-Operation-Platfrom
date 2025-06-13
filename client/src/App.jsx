@@ -3,6 +3,7 @@ import LandingNavbar from './components/header/Nav'
 import Layout from './Layout'
 import Home from './components/Home/Home'
 import RoomPages from './pages/RoomPages'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <ToastContainer/>
     </>
   )
 }

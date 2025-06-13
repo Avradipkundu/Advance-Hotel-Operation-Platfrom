@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {toast} from 'react-toastify'
 import { X, Lock, Eye, EyeOff, Mail, CircleUserRound } from 'lucide-react';
 
 const Login = ({ isOpen, onClose }) => {
@@ -57,15 +58,15 @@ const Login = ({ isOpen, onClose }) => {
         }
 
         if (isSignUp) {
-            alert("Registration successful! You can now log in.");
+            toast.success("Registration successful! You can now log in.");
             setIsSignUp(false);
         } else {
-            alert("Login successful!");
+            toast.success("Login successful!");
             onClose(); // or navigate to dashboard
         }
     } catch (error) {
         console.error("Error:", error);
-        alert("An error occurred. Please try again.");
+        toast.error("An error occurred. Please try again.");
     }
 };
 

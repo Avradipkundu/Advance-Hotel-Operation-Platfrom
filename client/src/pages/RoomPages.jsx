@@ -109,7 +109,7 @@ function RoomPages() {
                                 {...room}                                
                                 getFeatureIcon={getFeatureIcon}
                                 handleBookNow={handleBookNow}
-                                isLoading={isLoading === room._id}
+                                isLoading={isLoading === room.roomNo}
                             />
                         ))
                     )}
