@@ -16,6 +16,7 @@ const roomRoutes = require('./routes/RoomRoutes.js')
 app.use("/api", userRoutes)
 app.use('/api', adminRoutes)
 app.use('/api', roomRoutes)
+app.use('/uploads', express.static('uploads'));
 
 const PORT = process.env.PORT || 8001
 app.listen(PORT, () => {
