@@ -1,4 +1,3 @@
-// src/components/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { X, Lock, Eye, EyeOff, Mail, CircleUserRound } from 'lucide-react';
 
@@ -27,19 +26,48 @@ const Login = ({ isOpen, onClose }) => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        const response = await fetch('http://localhost:8000/api/register', {
+    e.preventDefault();
+
+    const url = isSignUp
+        ? 'http://localhost:8000/api/register'
+        : 'http://localhost:8000/api/login'; 
+
+    const payload = isSignUp
+        ? formData 
+        : {
+            email: formData.email,
+            password: formData.password
+        };
+
+    try {
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData),
+            body: JSON.stringify(payload),
         });
-        if (response.ok) {
-            setIsSignUp(!isSignUp);
+
+        const data = await response.json();
+        if(data.token){
+            localStorage.setItem('token',data.token);            
+    }
+
+        if (!response.ok) {
+            alert(data.message || "Something went wrong!");
+            return;
         }
-        // console.log(response)
-        // console.log(isSignUp ? 'Sign Up:' : 'Login:', formData);
-        // onClose();
-    };
+
+        if (isSignUp) {
+            alert("Registration successful! You can now log in.");
+            setIsSignUp(false);
+        } else {
+            alert("Login successful!");
+            onClose(); // or navigate to dashboard
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred. Please try again.");
+    }
+};
 
     const switchMode = () => {
         setIsSignUp(!isSignUp);
