@@ -20,7 +20,7 @@ roomNo,
             {/* Room Image */}
             <div className="lg:w-80 h-64 lg:h-auto relative overflow-hidden">
                 <img
-                    src={image}
+                    src={`http://localhost:8000${image}`}
                     alt={name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -84,7 +84,7 @@ roomNo,
                             <p className="text-sm text-gray-600">Best price guarantee</p>
                         </div>
                         <button
-                            onClick={() => handleBookNow(id, name, price)}
+                            onClick={() => handleBookNow(roomNo, name, price)}
                             disabled={isLoading}
                             className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                         >
