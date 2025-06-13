@@ -4,7 +4,7 @@ const uploadStorage = require('../middleware/Multer')
 const {jwtAuthMiddleware} = require('../middleware/authUser')
 const {allRooms,roomById,addRooms,updateRooms,deleteRooms} = require('../controller/RoomController')
 
-roomRouter.get('/allRooms', allRooms)
+roomRouter.get('/allRooms', jwtAuthMiddleware, allRooms)
 roomRouter.get('/roomById/:id', roomById)
 roomRouter.post('/addRooms', uploadStorage.single("image"), addRooms)
 roomRouter.put('/updateRooms/:id', uploadStorage.single("image"),jwtAuthMiddleware, updateRooms)

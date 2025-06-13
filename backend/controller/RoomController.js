@@ -1,15 +1,21 @@
 const fs = require('fs')
 const Room = require('../models/Room.js')
 const Admin = require('../models/Admin.js')
+const User = require('../models/User.js')
 
 const allRooms = async (req, res) => {
     try {
+        const user = req.user.id
+        const userData = await User.findById(user)
+        if(!userData){
+            return res.status(404).json("error: room not found")
+        }
         const data = await Room.find()
         console.log("data fetched")
         console.log(data)
         res.status(200).json(data)
     } catch (error) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({ message: error.message });
     }
 }
 // get record by id
@@ -24,14 +30,14 @@ const roomById = async (req, res) => {
         console.log(data)
         res.status(200).json(data)
     } catch (error) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({ message: error.message });
     }
 }
 
 const addRooms = async (req, res) => {
     try {
         const { roomNo, name, type, price, features, description } = req.body
-        const image = req.file ? req.file.filename : null;
+        const image = req.file ? `/uploads/${req.file.filename}` : null;
         const room = new Room({ roomNo, image, name, type, price, features, description })
         await room.save();
         console.log(room)
@@ -52,7 +58,7 @@ const updateRooms = async (req, res) => {
             return res.status(400).json({ error: 'user does not have admin role' })
         }
         if (req.file) {
-            updateData.image = req.file.filename; // ✅ Add the image filename to the update
+            updateData.image = `/uploads/${req.file.filename}` // ✅ Add the image filename to the update
         }
         const room = await Room.findByIdAndUpdate(roomId, updateData, {
             new: true
@@ -63,7 +69,7 @@ const updateRooms = async (req, res) => {
         console.log("data updated");
         res.status(200).json(room)
     } catch (error) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({ message: error.message });
     }
 }
 
@@ -77,16 +83,16 @@ const deleteRooms = async (req, res) => {
             return res.status(400).json({ error: 'user does not have admin role' })
         }
         if (!room) {
-            res.status(404).json({error: "room not found"})
+           return res.status(404).json({error: "room not found"})
         }
-        const userPhotoInfo = room.image;
-        if (userPhotoInfo) {
-            fs.unlinkSync("uploads/" + userPhotoInfo);
+        if (room.image) {
+            const filePath = room.image.replace('/uploads/', '');
+            fs.unlinkSync(`uploads/${filePath}`);
         }
         console.log("data deleted");
         res.status(200).json({ message: "record deleted successfully" })
     } catch (error) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({ message: error.message });
     }
 }
 
