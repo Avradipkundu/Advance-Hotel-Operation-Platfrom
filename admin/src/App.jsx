@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
-import RoomManagement from './components/AddRooms'
+import AddRoomsPage from './components/AddRooms'
 import ProtectedRoutes from './utils/PrivateRoute'
 
 function App() {  
@@ -13,7 +13,7 @@ function App() {
       <Routes>          
           <Route path='/' element={<Login />}/>          
           <Route path='/dashboard' element={<ProtectedRoutes><Dashboard /></ProtectedRoutes>}/>          
-          <Route path='/admin/rooms' element={<RoomManagement/>}/>          
+          <Route path='/admin/rooms' element={<AddRoomsPage/>}/>          
         </Routes>
       </BrowserRouter>
       <ToastContainer/>

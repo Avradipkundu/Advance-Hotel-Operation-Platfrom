@@ -53,9 +53,7 @@ const AdminDashboard = () => {
   const sidebarItems = [
     { name: 'Dashboard', href: '/admin', icon: Home },
     { name: 'Rooms', href: '/admin/rooms', icon: Bed },
-    { name: 'Bookings', href: '/admin/bookings', icon: Calendar },
-    { name: 'Staff', href: '/admin/staff', icon: Users },
-    { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+    { name: 'Bookings', href: '/admin/bookings', icon: Calendar },    
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
@@ -149,22 +147,7 @@ const AdminDashboard = () => {
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
               <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <button className="relative p-2 text-gray-600 hover:text-gray-900">
-                <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-              </button>
-            </div>
+            </div>            
           </div>
         </header>
 
@@ -176,7 +159,6 @@ const AdminDashboard = () => {
             <StatCard title="Available Rooms" value={stats.availableRooms} color="bg-green-50" textColor="text-green-700" />
             <StatCard title="Active Bookings" value={stats.bookings} color="bg-yellow-50" textColor="text-yellow-700" />
             <StatCard title="Total Revenue" value={`₹${stats.revenue.toLocaleString()}`} color="bg-purple-50" textColor="text-purple-700" />
-            <StatCard title="Staff Count" value={stats.staffCount} color="bg-pink-50" textColor="text-pink-700" />
           </div>
 
           {/* Management Sections */}
@@ -194,40 +176,8 @@ const AdminDashboard = () => {
               linkTo="/admin/bookings"
               buttonText="Go to Bookings"
               icon={Calendar}
-            />
-            <ManagementCard
-              title="Manage Staff"
-              description="Assign tasks, view schedules, and manage staff profiles."
-              linkTo="/admin/staff"
-              buttonText="Go to Staff"
-              icon={Users}
-            />
-          </div>
-
-          {/* Recent Activity */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-xl font-semibold mb-4 text-gray-900">Recent Activity</h3>
-            <div className="space-y-4">
-              <ActivityItem
-                title="New Booking Received"
-                description="Booking #BK12345 - Room 101 (Confirmed)"
-                time="5 minutes ago"
-                type="booking"
-              />
-              <ActivityItem
-                title="Staff Task Assigned"
-                description="New task assigned to Housekeeping Team"
-                time="1 hour ago"
-                type="staff"
-              />
-              <ActivityItem
-                title="Room Status Updated"
-                description="Room 205 marked as 'Maintenance'"
-                time="2 hours ago"
-                type="room"
-              />
-            </div>
-          </div>
+            />            
+          </div>          
         </main>
       </div>
     </div>
@@ -256,29 +206,4 @@ const ManagementCard = ({ title, description, linkTo, buttonText, icon: Icon }) 
     </Link>
   </div>
 );
-
-const ActivityItem = ({ title, description, time, type }) => {
-  const getTypeColor = (type) => {
-    switch (type) {
-      case 'booking': return 'bg-green-100 text-green-800';
-      case 'staff': return 'bg-blue-100 text-blue-800';
-      case 'room': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  return (
-    <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
-      <div className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(type)}`}>
-        {type.charAt(0).toUpperCase() + type.slice(1)}
-      </div>
-      <div className="flex-1">
-        <p className="font-medium text-gray-900">{title}</p>
-        <p className="text-sm text-gray-600">{description}</p>
-        <p className="text-xs text-gray-500 mt-1">{time}</p>
-      </div>
-    </div>
-  );
-};
-
 export default AdminDashboard;

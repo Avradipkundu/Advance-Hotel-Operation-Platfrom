@@ -1,525 +1,584 @@
-import React, { useState } from 'react';
-import { Plus, Search, Edit2, Trash2, Bed, Users, Wifi, Car, Coffee, Tv, Bath } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios'
 
-const RoomManagement = () => {
-  const [rooms, setRooms] = useState([
-    {
-      id: 1,
-      name: "Deluxe Ocean View",
-      type: "Deluxe",
-      price: 2500,
-      capacity: 2,
-      size: "35 sqm",
-      image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=300&fit=crop",
-      amenities: ["wifi", "tv", "bath", "coffee"],
-      availability: "Available",
-      description: "Luxurious room with stunning ocean views and premium amenities."
-    },
-    {
-      id: 2,
-      name: "Executive Suite",
-      type: "Suite",
-      price: 4500,
-      capacity: 4,
-      size: "65 sqm",
-      image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=300&fit=crop",
-      amenities: ["wifi", "tv", "bath", "coffee", "parking"],
-      availability: "Occupied",
-      description: "Spacious suite perfect for business travelers and families."
-    },
-    {
-      id: 3,
-      name: "Standard Room",
-      type: "Standard",
-      price: 1800,
-      capacity: 2,
-      size: "25 sqm",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c6650b81?w=400&h=300&fit=crop",
-      amenities: ["wifi", "tv", "bath"],
-      availability: "Available",
-      description: "Comfortable standard room with all essential amenities."
-    }
-  ]);
-
-  const [showAddForm, setShowAddForm] = useState(false);
+const AddRoomsPage = () => {
+  const [selectedFilter, setSelectedFilter] = useState('all rooms');
+  const [showPopup, setShowPopup] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('All');
-  const [newRoom, setNewRoom] = useState({
-    name: '',
-    type: 'Standard',
-    price: '',
-    capacity: 2,
-    size: '',
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    roomNo: '',
     image: '',
-    amenities: [],
-    availability: 'Available',
+    name: '',
+    type: '',
+    price: '',
+    rating: '',
+    features: [],
     description: ''
   });
 
-  const amenityIcons = {
-    wifi: <Wifi className="w-4 h-4" />,
-    tv: <Tv className="w-4 h-4" />,
-    bath: <Bath className="w-4 h-4" />,
-    coffee: <Coffee className="w-4 h-4" />,
-    parking: <Car className="w-4 h-4" />
+  const API_BASE_URL = 'http://localhost:8000/api';
+  const roomTypes = ['all rooms', 'Single Bed', 'Double Bed', 'Luxury Room', 'Family Suite'];
+  const availableFeatures = [
+    'Free WiFi',
+    'Free Breakfast',
+    'Room Service',
+    'Pool Access',
+    'Mountain View',
+    'Parking'
+  ];
+
+  const fetchAllRooms = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get("http://localhost:8000/api/allRooms", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setRooms(response.data);
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+      setError('Failed to fetch rooms. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const roomTypes = ['All', 'Standard', 'Deluxe', 'Suite'];
+  // Fetch all rooms on component mount
+  useEffect(() => {
+    fetchAllRooms();
+  }, []);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleFileChange = (e) => {
+  const files = Array.from(e.target.files);
+  if (files.length > 0) {
+    setFormData(prev => ({
+      ...prev,
+      image: files.length === 1 ? files[0] : files
+    }));
+  }
+};
+
+  const handleFeatureChange = (feature) => {
+    setFormData(prev => ({
+      ...prev,
+      features: prev.features.includes(feature)
+        ? prev.features.filter(f => f !== feature)
+        : [...prev.features, feature]
+    }));
+  };
+
+  const createFormData = (data) => {
+  const formDataObj = new FormData();
+  
+  // Add text fields
+  formDataObj.append('roomNo', data.roomNo);
+  formDataObj.append('name', data.name);
+  formDataObj.append('type', data.type);
+  formDataObj.append('price', data.price);
+  formDataObj.append('rating', data.rating);
+  formDataObj.append('description', data.description);
+  formDataObj.append('features', JSON.stringify(data.features));
+  
+  // Add images - handle both single file and file array
+  if (data.image) {
+    if (Array.isArray(data.image)) {
+      // Multiple files
+      data.image.forEach((file) => {
+        formDataObj.append("image", file);
+      });
+    } else {
+      // Single file
+      formDataObj.append("image", data.image);
+    }
+  }
+  
+  return formDataObj;
+};
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      if (editingRoom) {
+        // Update existing room
+        const formDataObj = createFormData(formData);
+        const token = localStorage.getItem('token');
+
+        // Use axios for update (consistent with your fetch pattern)
+        const response = await axios.put(
+          `${API_BASE_URL}/updateRooms/${editingRoom._id}`,
+          formDataObj,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        // axios returns data directly, no need for .json()
+        console.log('Room updated:', response.data);
+
+        // Refresh the rooms list
+        await fetchAllRooms();
+        setEditingRoom(null);
+      } else {
+        // Create new room - also fix this part to use axios consistently
+        const formDataObj = createFormData(formData);
+        const token = localStorage.getItem('token');
+
+        const response = await axios.post(
+          `${API_BASE_URL}/addRooms`,
+          formDataObj,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        console.log('Room added:', response.data);
+
+        // Refresh the rooms list
+        await fetchAllRooms();
+      }
+
+      setShowPopup(false);
+      resetForm();
+    } catch (error) {
+      console.error('Error saving room:', error);
+      setError('Failed to save room. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      roomNo: '',
+      image: '',
+      name: '',
+      type: '',
+      price: '',
+      rating: '',
+      features: [],
+      description: ''
+    });
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+    setEditingRoom(null);
+    resetForm();
+    setError('');
+  };
+
+  const editRoom = (room) => {
+    setEditingRoom(room);
+    setFormData({
+      roomNo: room.roomNo,
+      image: room.image,
+      name: room.name,
+      type: room.type,
+      price: room.price,
+      rating: room.rating,
+      features: room.features || [],
+      description: room.description
+    });
+    setShowPopup(true);
+  };
+
+  const deleteRoom = async (roomId) => {
+    if (!window.confirm('Are you sure you want to delete this room?')) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/deleteRooms/${roomId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      console.log('Room deleted successfully');
+
+      // Refresh the rooms list
+      await fetchAllRooms();
+    } catch (error) {
+      console.error('Error deleting room:', error);
+      setError('Failed to delete room. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter rooms based on selected filter
   const filteredRooms = rooms.filter(room => {
-    const matchesSearch = room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         room.type.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterType === 'All' || room.type === filterType;
-    return matchesSearch && matchesFilter;
+    if (selectedFilter === 'all rooms') return true;
+    if (selectedFilter === 'Single Bed') return room.type === 'Single Bed'
+    if (selectedFilter === 'Double Bed') return room.type === 'Double Bed'
+    if (selectedFilter === 'Luxury Room') return room.type === 'Luxury Room'
+    if (selectedFilter === 'Family Suite') return room.type === 'Family Suite'
+    return true;
   });
 
-  const handleAddRoom = () => {
-    if (newRoom.name && newRoom.price) {
-      const room = {
-        ...newRoom,
-        id: Date.now(),
-        price: parseInt(newRoom.price)
-      };
-      setRooms([...rooms, room]);
-      setNewRoom({
-        name: '',
-        type: 'Standard',
-        price: '',
-        capacity: 2,
-        size: '',
-        image: '',
-        amenities: [],
-        availability: 'Available',
-        description: ''
-      });
-      setShowAddForm(false);
-    }
-  };
-
-  const handleEditRoom = () => {
-    if (editingRoom.name && editingRoom.price) {
-      setRooms(rooms.map(room => 
-        room.id === editingRoom.id 
-          ? { ...editingRoom, price: parseInt(editingRoom.price) }
-          : room
-      ));
-      setEditingRoom(null);
-    }
-  };
-
-  const handleDeleteRoom = (id) => {
-    if (window.confirm('Are you sure you want to delete this room?')) {
-      setRooms(rooms.filter(room => room.id !== id));
-    }
-  };
-
-  const handleAmenityToggle = (amenity, isEditing = false) => {
-    const target = isEditing ? editingRoom : newRoom;
-    const setter = isEditing ? setEditingRoom : setNewRoom;
-    
-    const updatedAmenities = target.amenities.includes(amenity)
-      ? target.amenities.filter(a => a !== amenity)
-      : [...target.amenities, amenity];
-    
-    setter({ ...target, amenities: updatedAmenities });
-  };
-
-  const handleImageUpload = (e, isEditing = false) => {
-    const file = e.target.files[0];
-    if (file) {
-      // In a real app, you'd upload to a server and get a URL back
-      // For demo purposes, we'll create a local URL
-      const imageUrl = URL.createObjectURL(file);
-      if (isEditing) {
-        setEditingRoom({ ...editingRoom, image: imageUrl });
-      } else {
-        setNewRoom({ ...newRoom, image: imageUrl });
-      }
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Room Management</h1>
-          <p className="text-gray-600">Manage your hotel rooms, availability, and pricing</p>
+    <div className="p-5 max-w-6xl mx-auto font-sans">
+      <h1 className="text-4xl text-gray-800 text-center mb-8 font-bold">Add Rooms</h1>
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          {error}
+          <button
+            onClick={() => setError('')}
+            className="float-right text-red-700 hover:text-red-900"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      <div className="flex justify-between items-center mb-8 gap-5 flex-col md:flex-row">
+        <div className="flex-1 max-w-xs w-full">
+          <select
+            value={selectedFilter}
+            onChange={(e) => setSelectedFilter(e.target.value)}
+            className="w-full p-3 border-2 border-gray-300 rounded-lg text-base bg-white cursor-pointer transition-colors duration-300 focus:outline-none focus:border-blue-500"
+            disabled={loading}
+          >
+            {roomTypes.map((type, index) => (
+              <option key={index} value={type}>
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Controls */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search rooms..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+        <button
+          className="bg-blue-500 text-white border-none py-3 px-6 rounded-lg text-base font-bold cursor-pointer transition-colors duration-300 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => setShowPopup(true)}
+          disabled={loading}
+        >
+          {loading ? 'Loading...' : 'Add Room'}
+        </button>
+      </div>
+
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      )}
+
+      {/* Display Added Rooms */}
+      {!loading && rooms.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            Added Rooms ({filteredRooms.length})
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredRooms.map((room) => (
+              <div key={room.roomNo} className="bg-white border-2 border-gray-200 rounded-lg p-4 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                {/* Room Images */}
+                {room.image && (
+                  <div className="mb-4">
+                    <img
+                      src={`http://localhost:8000${room.image}`}
+                      alt={room.name}
+                      className="w-full h-48 object-cover rounded-md"
+                      onError={(e) => {
+                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+                      }}
+                    />
+
+                  </div>
+                )}
+
+                {/* Room Details */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-lg font-bold text-gray-800">{room.name}</h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => editRoom(room)}
+                        className="text-blue-500 hover:text-blue-700 text-sm font-medium transition-colors duration-200 disabled:opacity-50"
+                        disabled={loading}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteRoom(room._id || room.id)}
+                        className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors duration-200 disabled:opacity-50"
+                        disabled={loading}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      Room #{room.roomNo}
+                    </span>
+                    <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded capitalize">
+                      {room.type}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-black">${room.price}/night</span>
+                    <div className="flex items-center">
+                      <span className="text-yellow-500">★</span>
+                      <span className="text-sm text-gray-600 ml-1">{room.rating}</span>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-gray-600 line-clamp-2">{room.description}</p>
+
+                  {/* Features */}
+                  {room.features && room.features.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-medium text-gray-700 mb-1">Features:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {room.features.slice(0, 3).map((feature, index) => (
+                          <span key={index} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                            {feature}
+                          </span>
+                        ))}
+                        {room.features.length > 3 && (
+                          <span className="text-xs text-gray-500">+{room.features.length - 3} more</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-              >
-                {roomTypes.map(type => (
-                  <option key={type} value={type}>{type} Rooms</option>
-                ))}
-              </select>
-            </div>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              Add New Room
-            </button>
+            ))}
           </div>
         </div>
+      )}
 
-        {/* Room Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {filteredRooms.map(room => (
-            <div key={room.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-              <div className="relative">
-                <img
-                  src={room.image}
-                  alt={room.name}
-                  className="w-full h-48 object-cover"
+      {/* No Rooms Message */}
+      {!loading && rooms.length === 0 && (
+        <div className="text-center py-12">
+          <div className="text-gray-400 mb-4">
+            <svg className="mx-auto h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-600 mb-2">No rooms added yet</h3>
+          <p className="text-gray-500">Click "Add Room" to create your first room listing</p>
+        </div>
+      )}
+
+      {/* Popup Form */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-xl w-11/12 max-w-2xl max-h-screen overflow-y-auto shadow-2xl">
+            <div className="flex justify-between items-center p-5 border-b border-gray-200">
+              <h2 className="m-0 text-gray-800 text-2xl font-semibold">
+                {editingRoom ? 'Edit Room' : 'Add New Room'}
+              </h2>
+              <button
+                className="bg-transparent border-none text-2xl cursor-pointer text-gray-600 p-0 w-8 h-8 flex items-center justify-center hover:text-gray-800 transition-colors duration-200"
+                onClick={closePopup}
+                disabled={loading}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-5">
+              <div className="mb-5">
+                <label htmlFor="roomNo" className="block mb-2 font-bold text-gray-800">Room Number:</label>
+                <input
+                  type="text"
+                  id="roomNo"
+                  name="roomNo"
+                  value={formData.roomNo}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border-2 border-gray-300 rounded-md text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500"
+                  required
+                  disabled={loading}
                 />
-                <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium ${
-                  room.availability === 'Available' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {room.availability}
+              </div>
+
+              <div className="mb-5">
+                <label className="block mb-2 font-bold text-gray-800">
+                  {editingRoom ? 'Update Images (optional):' : 'Select Image/Images:'}
+                </label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    required={!editingRoom}
+                    disabled={loading}
+                  />
+                  <label
+                    htmlFor="image"
+                    className={`w-full p-3 border-2 border-dashed border-gray-300 rounded-md text-sm cursor-pointer transition-colors duration-300 hover:border-blue-500 hover:bg-blue-50 flex items-center justify-center bg-gray-50 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    <div className="text-center">
+                      <svg className="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+
+                      <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG up to 10MB each</p>
+                    </div>
+                  </label>
                 </div>
               </div>
-              
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-semibold text-gray-900">{room.name}</h3>
-                  <span className="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded">{room.type}</span>
-                </div>
-                
-                <p className="text-gray-600 text-sm mb-3">{room.description}</p>
-                
-                <div className="flex items-center gap-4 mb-3 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
-                    {room.capacity} guests
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Bed className="w-4 h-4" />
-                    {room.size}
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2 mb-4">
-                  {room.amenities.map(amenity => (
-                    <div key={amenity} className="p-2 bg-gray-100 rounded-lg" title={amenity}>
-                      {amenityIcons[amenity]}
+
+              <div className="mb-5">
+                <label htmlFor="name" className="block mb-2 font-bold text-gray-800">Room Name:</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border-2 border-gray-300 rounded-md text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500"
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="mb-5">
+                <label htmlFor="type" className="block mb-2 font-bold text-gray-800">Room Type:</label>
+                <select
+                  id="type"
+                  name="type"
+                  value={formData.type}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border-2 border-gray-300 rounded-md text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500"
+                  required
+                  disabled={loading}
+                >
+                  <option value="Single Bed">Single Bed</option>
+                  <option value="Double Bed">Double Bed</option>
+                  <option value="Luxury Room">Luxury Room</option>
+                  <option value="Family Suite">Family Suite</option>
+                </select>
+              </div>
+
+              <div className="mb-5">
+                <label htmlFor="price" className="block mb-2 font-bold text-gray-800">Price:</label>
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border-2 border-gray-300 rounded-md text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500"
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="mb-5">
+                <label htmlFor="rating" className="block mb-2 font-bold text-gray-800">Rating:</label>
+                <input
+                  type="number"
+                  id="rating"
+                  name="rating"
+                  min="1"
+                  max="5"
+                  step="0.1"
+                  value={formData.rating}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border-2 border-gray-300 rounded-md text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500"
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="mb-5">
+                <label className="block mb-2 font-bold text-gray-800">Features:</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                  {availableFeatures.map((feature, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id={`feature-${index}`}
+                        checked={formData.features.includes(feature)}
+                        onChange={() => handleFeatureChange(feature)}
+                        className="w-auto m-0 accent-blue-500"
+                        disabled={loading}
+                      />
+                      <label htmlFor={`feature-${index}`} className="m-0 font-normal cursor-pointer text-gray-700">
+                        {feature}
+                      </label>
                     </div>
                   ))}
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="text-2xl font-bold text-blue-600">₹{room.price.toLocaleString()}</div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setEditingRoom(room)}
-                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteRoom(room.id)}
-                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+              </div>
+
+              <div className="mb-5">
+                <label htmlFor="description" className="block mb-2 font-bold text-gray-800">Description:</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows="4"
+                  className="w-full p-3 border-2 border-gray-300 rounded-md text-sm transition-colors duration-300 focus:outline-none focus:border-blue-500 resize-vertical"
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="flex gap-4 justify-end mt-8 pt-5 border-t border-gray-200 flex-col md:flex-row">
+                <button
+                  type="button"
+                  onClick={closePopup}
+                  className="bg-gray-500 text-white border-none py-3 px-6 rounded-md cursor-pointer text-sm transition-colors duration-300 hover:bg-gray-600 disabled:opacity-50"
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  onClick={handleSubmit}
+                  className="bg-green-500 text-white border-none py-3 px-6 rounded-md cursor-pointer text-sm font-bold transition-colors duration-300 hover:bg-green-600 disabled:opacity-50"
+                  disabled={loading}
+                >
+                  {loading ? 'Saving...' : (editingRoom ? 'Update Room' : 'Add Room')}
+                </button>
               </div>
             </div>
-          ))}
+          </div>
         </div>
-
-        {/* Add Room Modal */}
-        {showAddForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-6">Add New Room</h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Room Name</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={newRoom.name}
-                      onChange={(e) => setNewRoom({ ...newRoom, name: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Room Type</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={newRoom.type}
-                      onChange={(e) => setNewRoom({ ...newRoom, type: e.target.value })}
-                    >
-                      <option value="Standard">Standard</option>
-                      <option value="Deluxe">Deluxe</option>
-                      <option value="Suite">Suite</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={newRoom.price}
-                      onChange={(e) => setNewRoom({ ...newRoom, price: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Capacity</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={newRoom.capacity}
-                      onChange={(e) => setNewRoom({ ...newRoom, capacity: parseInt(e.target.value) })}
-                    >
-                      {[1,2,3,4,5,6].map(num => (
-                        <option key={num} value={num}>{num} guests</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
-                    <input
-                      type="text"
-                      placeholder="e.g., 35 sqm"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={newRoom.size}
-                      onChange={(e) => setNewRoom({ ...newRoom, size: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Room Image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  {newRoom.image && (
-                    <img src={newRoom.image} alt="Preview" className="mt-2 w-32 h-24 object-cover rounded-lg" />
-                  )}
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Amenities</label>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.keys(amenityIcons).map(amenity => (
-                      <button
-                        key={amenity}
-                        type="button"
-                        onClick={() => handleAmenityToggle(amenity)}
-                        className={`px-3 py-2 rounded-lg border text-sm capitalize flex items-center gap-2 ${
-                          newRoom.amenities.includes(amenity)
-                            ? 'bg-blue-100 border-blue-300 text-blue-700'
-                            : 'bg-gray-100 border-gray-300 text-gray-700'
-                        }`}
-                      >
-                        {amenityIcons[amenity]}
-                        {amenity}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                  <textarea
-                    rows="3"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={newRoom.description}
-                    onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
-                  />
-                </div>
-
-                <div className="flex gap-4">
-                  <button
-                    onClick={handleAddRoom}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
-                  >
-                    Add Room
-                  </button>
-                  <button
-                    onClick={() => setShowAddForm(false)}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Edit Room Modal */}
-        {editingRoom && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-6">Edit Room</h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Room Name</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={editingRoom.name}
-                      onChange={(e) => setEditingRoom({ ...editingRoom, name: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Room Type</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={editingRoom.type}
-                      onChange={(e) => setEditingRoom({ ...editingRoom, type: e.target.value })}
-                    >
-                      <option value="Standard">Standard</option>
-                      <option value="Deluxe">Deluxe</option>
-                      <option value="Suite">Suite</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={editingRoom.price}
-                      onChange={(e) => setEditingRoom({ ...editingRoom, price: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Capacity</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={editingRoom.capacity}
-                      onChange={(e) => setEditingRoom({ ...editingRoom, capacity: parseInt(e.target.value) })}
-                    >
-                      {[1,2,3,4,5,6].map(num => (
-                        <option key={num} value={num}>{num} guests</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={editingRoom.size}
-                      onChange={(e) => setEditingRoom({ ...editingRoom, size: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
-                  <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={editingRoom.availability}
-                    onChange={(e) => setEditingRoom({ ...editingRoom, availability: e.target.value })}
-                  >
-                    <option value="Available">Available</option>
-                    <option value="Occupied">Occupied</option>
-                    <option value="Maintenance">Maintenance</option>
-                  </select>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Room Image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, true)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  {editingRoom.image && (
-                    <img src={editingRoom.image} alt="Preview" className="mt-2 w-32 h-24 object-cover rounded-lg" />
-                  )}
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Amenities</label>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.keys(amenityIcons).map(amenity => (
-                      <button
-                        key={amenity}
-                        type="button"
-                        onClick={() => handleAmenityToggle(amenity, true)}
-                        className={`px-3 py-2 rounded-lg border text-sm capitalize flex items-center gap-2 ${
-                          editingRoom.amenities.includes(amenity)
-                            ? 'bg-blue-100 border-blue-300 text-blue-700'
-                            : 'bg-gray-100 border-gray-300 text-gray-700'
-                        }`}
-                      >
-                        {amenityIcons[amenity]}
-                        {amenity}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                  <textarea
-                    rows="3"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={editingRoom.description}
-                    onChange={(e) => setEditingRoom({ ...editingRoom, description: e.target.value })}
-                  />
-                </div>
-
-                <div className="flex gap-4">
-                  <button
-                    onClick={handleEditRoom}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    onClick={() => setEditingRoom(null)}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };
 
-export default RoomManagement;
+export default AddRoomsPage;
