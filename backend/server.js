@@ -11,11 +11,13 @@ app.use(cors());
 const userRoutes = require('./routes/userRoutes')
 const adminRoutes = require('./routes/AdminRoutes.js')
 const roomRoutes = require('./routes/RoomRoutes.js')
+const reservationRoutes = require('./routes/ReservationRoutes.js')
 
 // routes
 app.use("/api", userRoutes)
 app.use('/api', adminRoutes)
 app.use('/api', roomRoutes)
+app.use('/api', reservationRoutes)
 app.use('/uploads', express.static('uploads'));
 
 const PORT = process.env.PORT || 8001
