@@ -163,18 +163,13 @@ export default function Bookings() {
                                                     {reservation.user.name}
                                                 </div>
                                                 <div className="text-sm text-gray-500">
-                                                    {reservation.user.email}
+                                                  {reservation.room.name}
                                                 </div>
-                                                {reservation.user.phone && (
-                                                    <div className="text-sm text-gray-500">
-                                                        {reservation.user.phone}
-                                                    </div>
-                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-sm font-medium text-gray-900">
-                                                Room {reservation.room.roomNumber}
+                                                Room {reservation.room.roomNO}
                                             </div>
                                             <div className="text-sm text-gray-500">
                                                 {reservation.room.type} - ${reservation.room.price}/night

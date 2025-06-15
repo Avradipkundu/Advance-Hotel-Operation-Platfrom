@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AlignJustify, X, Hotel } from 'lucide-react'
+import { AlignJustify, X, Hotel, User } from 'lucide-react'
 import Login from '../../pages/Login';
+import Profile from '../../pages/Profile';
 
 const LandingNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+   const [user, setUser] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
+
+
   const location = useLocation()
 
   const navLinks = [
@@ -15,7 +26,7 @@ const LandingNavbar = () => {
     { name: "Rooms", path: "rooms" },
     { name: "Features", path: "features" },
     { name: "About", path: "about" }
-  ];  
+  ];
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -51,7 +62,25 @@ const LandingNavbar = () => {
   const closeLogin = () => {
     setShowLogin(false);
   };
-  
+
+  const openProfile = () => {
+    setShowProfile(true);
+    setShowMobileMenu(false);
+  };
+
+  const closeProfile = () => {
+    setShowProfile(false);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUser({ name: '', email: '', phone: '', address: '' });
+    setShowProfile(false);
+    setShowMobileMenu(false);
+  };
+
+
+
   return (
     <>
       <nav className={`fixed w-full top-0 z-50 transition-colors duration-300 ${scrolled ? 'bg-gray-800 shadow-md' : 'bg-transparent backdrop-blur-md '
@@ -95,21 +124,22 @@ const LandingNavbar = () => {
             <div className="lg:ml-4 mt-2 lg:mt-0 px-4">
               <div className="lg:ml-4 mt-2 lg:mt-0 px-4">
                 {isAuthenticated ? (
-                  <Link                                    
-                    to="/profile" // ✅ Replace with your actual profile route
+                  <Link
+                    onClick={openProfile}
                     className={`inline-block font-bold px-4 py-2 rounded-lg transition duration-300 ease-in-out hover:scale-105 shadow ${scrolled
-                        ? 'bg-indigo-500 text-white hover:bg-indigo-700'
-                        : 'bg-white text-indigo-600 hover:bg-indigo-100'
+                      ? 'bg-indigo-500 text-white hover:bg-indigo-700'
+                      : 'bg-white text-indigo-600 hover:bg-indigo-100'
                       }`}
                   >
-                    Profile
+                    <User size={18} />
+                    <span>Profile</span>
                   </Link>
                 ) : (
                   <button
                     onClick={openLogin}
                     className={`inline-block font-bold px-4 py-2 rounded-lg transition duration-300 ease-in-out hover:scale-105 shadow ${scrolled
-                        ? 'bg-indigo-500 text-white hover:bg-indigo-700'
-                        : 'bg-white text-indigo-600 hover:bg-indigo-100'
+                      ? 'bg-indigo-500 text-white hover:bg-indigo-700'
+                      : 'bg-white text-indigo-600 hover:bg-indigo-100'
                       }`}
                   >
                     Login
@@ -124,6 +154,16 @@ const LandingNavbar = () => {
       </nav >
       {/* Login Modal */}
       <Login isOpen={showLogin} onClose={closeLogin} />
+
+      {/* Profile Modal */}
+      <Profile
+        isOpen={showProfile}
+        onClose={closeProfile}
+        user={user}
+        setUser={setUser}
+        onLogout={handleLogout}
+      />
+
     </>
   );
 };

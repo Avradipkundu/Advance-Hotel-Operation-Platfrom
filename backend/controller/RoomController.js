@@ -19,6 +19,15 @@ const allRooms = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 }
+// Count total rooms
+const countRooms = async (req, res) => {
+    try {
+        const total = await Room.countDocuments();
+        res.status(200).json({ total });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 // get record by id
 const roomById = async (req, res) => {
     try {
@@ -99,6 +108,7 @@ const deleteRooms = async (req, res) => {
 
 module.exports = {
     allRooms,
+    countRooms,
     roomById,
     addRooms,
     updateRooms,

@@ -29,15 +29,17 @@ const reservations = async (req, res) => {
 
 const allReservations = async (req, res) => {
     try {
-        const userId = req.user.id 
+        const userId = req.user.id
         if (!userId) {
             console.log("user not found")
-        }       
+        }
         const adminData = await Admin.findById(userId)
         if (!adminData || adminData.role !== "admin") {
             return res.status(403).json({ error: "Unauthorized access" });
         }
         const data = await Reservation.find()
+            .populate('user')
+            .populate('room')
         console.log("data fetched")
         console.log(data)
         res.status(200).json(data)

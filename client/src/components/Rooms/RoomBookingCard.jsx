@@ -1,19 +1,20 @@
 import React from 'react'
-import {Star} from 'lucide-react'
+import { Star } from 'lucide-react'
 
 const RoomBookingCard = ({
-roomNo,
-  image,
-  name,
-  type,
-  price,
-  reviews,
-  rating,
-  description,
-  features = [],
-  getFeatureIcon = () => null,
-  handleBookNow = () => {},
-  isLoading = false,
+    _id,
+    roomNo,
+    image,
+    name,
+    type,
+    price,
+    reviews,
+    rating,
+    description,
+    features = [],
+    getFeatureIcon = () => null,
+    handleBookNow = () => { },
+    isLoading = false,
 }) => (
     <div className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 group">
         <div className="flex flex-col lg:flex-row">
@@ -49,8 +50,8 @@ roomNo,
                                     <Star
                                         key={i}
                                         className={`w-4 h-4 ${i < rating
-                                                ? "text-amber-400 fill-current"
-                                                : "text-gray-300"
+                                            ? "text-amber-400 fill-current"
+                                            : "text-gray-300"
                                             }`}
                                     />
                                 ))}
@@ -84,7 +85,15 @@ roomNo,
                             <p className="text-sm text-gray-600">Best price guarantee</p>
                         </div>
                         <button
-                            onClick={() => handleBookNow(roomNo, name, price)}
+                            onClick={() => handleBookNow(_id,roomNo,
+                                image,
+                                name,
+                                type,
+                                price,
+                                reviews,
+                                rating,
+                                description,
+                                features)}
                             disabled={isLoading}
                             className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                         >

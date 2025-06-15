@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import AddRoomsPage from './components/AddRooms'
 import ProtectedRoutes from './utils/PrivateRoute'
+import Bookings from './components/Bookings'
 
 function App() {  
 
@@ -14,6 +15,7 @@ function App() {
           <Route path='/' element={<Login />}/>          
           <Route path='/dashboard' element={<ProtectedRoutes><Dashboard /></ProtectedRoutes>}/>          
           <Route path='/admin/rooms' element={<AddRoomsPage/>}/>          
+          <Route path='/admin/bookings' element={<Bookings/>}/>          
         </Routes>
       </BrowserRouter>
       <ToastContainer/>

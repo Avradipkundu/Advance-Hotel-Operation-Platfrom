@@ -4,25 +4,22 @@ import {
   Home,
   Bed,
   Calendar,
-  Users,
-  BarChart3,
+  Users,  
   Settings,
   LogOut,
   Menu,
-  X,
-  Bell,
-  Search
+  X,  
 } from 'lucide-react';
+import axios from 'axios'
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
-    totalRooms: 45,
-    availableRooms: 12,
-    bookings: 28,
-    revenue: 125000,
-    guestSatisfaction: 4.8,
-    staffCount: 15,
+    totalRooms: 0,
+    availableRooms: 0,
+    bookings: 0,
+    revenue: 0,    
   });
+  const [roomCount, setRoomCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
@@ -32,6 +29,12 @@ const AdminDashboard = () => {
     localStorage.removeItem('token');
     navigate('/');
   }
+
+  useEffect(() => {
+    axios.get("http://localhost:8000/api/countRooms")
+      .then(res => setRoomCount(res.data.total))
+      .catch(err => console.error(err));
+  }, []);
 
   // Simulate API call
   useEffect(() => {
@@ -155,7 +158,7 @@ const AdminDashboard = () => {
         <main className="flex-1 p-6">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-            <StatCard title="Total Rooms" value={stats.totalRooms} color="bg-blue-50" textColor="text-blue-700" />
+            <StatCard title="Total Rooms" value={roomCount} color="bg-blue-50" textColor="text-blue-700" />
             <StatCard title="Available Rooms" value={stats.availableRooms} color="bg-green-50" textColor="text-green-700" />
             <StatCard title="Active Bookings" value={stats.bookings} color="bg-yellow-50" textColor="text-yellow-700" />
             <StatCard title="Total Revenue" value={`₹${stats.revenue.toLocaleString()}`} color="bg-purple-50" textColor="text-purple-700" />

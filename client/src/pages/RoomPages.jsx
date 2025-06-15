@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Wifi, Coffee, Car, Waves, Mountain, Users, Bed } from 'lucide-react';
 import RoomBookingCard from '../components/Rooms/RoomBookingCard';
 import axios from 'axios';
+import BookingModel from '../components/Booking/BookingModel';
 
 const getFeatureIcon = (feature) => {
     const iconMap = {
@@ -19,34 +20,60 @@ function RoomPages() {
     const [rooms, setRooms] = useState([]);
     const [selectedRoomType, setSelectedRoomType] = useState("All Rooms");
     const [isLoading, setIsLoading] = useState(null);
+    const [showBookingModal, setShowBookingModal] = useState(false);
+    const [selectedRoom, setSelectedRoom] = useState(null);
     const [loadingData, setLoadingData] = useState(true);
 
     const fetchRooms = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get("http://localhost:8000/api/allRooms",{
-                    headers: { Authorization: `Bearer ${token}`}
-                });
-                if(!response){
-                    console.error("rooms not found")
-                }
-                setRooms(response.data);
-            } catch (error) {
-                console.error("Error fetching rooms:", error);
-            } finally{
-                setLoadingData(false)
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get("http://localhost:8000/api/allRooms", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!response) {
+                console.error("rooms not found")
             }
-        };
+            setRooms(response.data);
+        } catch (error) {
+            console.error("Error fetching rooms:", error);
+        } finally {
+            setLoadingData(false)
+        }
+    };
     useEffect(() => {
         fetchRooms();
     }, []);
 
-    const handleBookNow = async (roomId, roomName, price) => {
-        setIsLoading(roomId);
-        setTimeout(() => {
-            setIsLoading(null);
-            alert(`Successfully initiated booking for ${roomName}!\nPrice: $${price}/night\nBooking ID: ${roomId}-${Date.now()}`);
-        }, 1500);
+
+
+    const handleBookNow = (_id,roomNo,
+        image,
+        name,
+        type,
+        price,
+        reviews,
+        rating,
+        description,
+        features) => {
+        setSelectedRoom({
+            _id,
+            roomNo,
+            image,
+            name,
+            type,
+            price,
+            reviews,
+            rating,
+            description,
+            features
+        });
+        setShowBookingModal(true);
+        setIsLoading(null)
+    };
+
+    const closeBookingModal = () => {
+        setShowBookingModal(false);
+        setSelectedRoom(null);
     };
 
     const handleRoomTypeChange = (e) => {
@@ -106,7 +133,7 @@ function RoomPages() {
                         filteredRooms.map((room, index) => (
                             <RoomBookingCard
                                 key={index}
-                                {...room}                                
+                                {...room}
                                 getFeatureIcon={getFeatureIcon}
                                 handleBookNow={handleBookNow}
                                 isLoading={isLoading === room.roomNo}
@@ -126,6 +153,12 @@ function RoomPages() {
                     </div>
                 )}
             </div>
+            {/* Booking Modal */}
+            <BookingModel
+                isOpen={showBookingModal}
+                onClose={closeBookingModal}
+                roomData={selectedRoom}
+            />
         </div>
     );
 }

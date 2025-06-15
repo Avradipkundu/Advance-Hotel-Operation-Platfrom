@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const AddRoomsPage = () => {
   const [selectedFilter, setSelectedFilter] = useState('all rooms');
@@ -12,7 +13,7 @@ const AddRoomsPage = () => {
     roomNo: '',
     image: '',
     name: '',
-    type: '',
+    type: 'Single Bed',
     price: '',
     rating: '',
     features: [],
@@ -64,14 +65,14 @@ const AddRoomsPage = () => {
   };
 
   const handleFileChange = (e) => {
-  const files = Array.from(e.target.files);
-  if (files.length > 0) {
-    setFormData(prev => ({
-      ...prev,
-      image: files.length === 1 ? files[0] : files
-    }));
-  }
-};
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        image: files.length === 1 ? files[0] : files
+      }));
+    }
+  };
 
   const handleFeatureChange = (feature) => {
     setFormData(prev => ({
@@ -83,32 +84,32 @@ const AddRoomsPage = () => {
   };
 
   const createFormData = (data) => {
-  const formDataObj = new FormData();
-  
-  // Add text fields
-  formDataObj.append('roomNo', data.roomNo);
-  formDataObj.append('name', data.name);
-  formDataObj.append('type', data.type);
-  formDataObj.append('price', data.price);
-  formDataObj.append('rating', data.rating);
-  formDataObj.append('description', data.description);
-  formDataObj.append('features', JSON.stringify(data.features));
-  
-  // Add images - handle both single file and file array
-  if (data.image) {
-    if (Array.isArray(data.image)) {
-      // Multiple files
-      data.image.forEach((file) => {
-        formDataObj.append("image", file);
-      });
-    } else {
-      // Single file
-      formDataObj.append("image", data.image);
+    const formDataObj = new FormData();
+
+    // Add text fields
+    formDataObj.append('roomNo', data.roomNo);
+    formDataObj.append('name', data.name);
+    formDataObj.append('type', data.type);
+    formDataObj.append('price', data.price);
+    formDataObj.append('rating', data.rating);
+    formDataObj.append('description', data.description);
+    formDataObj.append('features', data.features);
+
+    // Add images - handle both single file and file array
+    if (data.image) {
+      if (Array.isArray(data.image)) {
+        // Multiple files
+        data.image.forEach((file) => {
+          formDataObj.append("image", file);
+        });
+      } else {
+        // Single file
+        formDataObj.append("image", data.image);
+      }
     }
-  }
-  
-  return formDataObj;
-};
+
+    return formDataObj;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -176,7 +177,7 @@ const AddRoomsPage = () => {
       roomNo: '',
       image: '',
       name: '',
-      type: '',
+      type: 'Single Bed',
       price: '',
       rating: '',
       features: [],
@@ -200,30 +201,33 @@ const AddRoomsPage = () => {
       type: room.type,
       price: room.price,
       rating: room.rating,
-      features: room.features || [],
+      features: room.features,
       description: room.description
     });
     setShowPopup(true);
   };
 
   const deleteRoom = async (roomId) => {
-    if (!window.confirm('Are you sure you want to delete this room?')) {
+    if (!window.confirm('Are you sure you want to delete this room?'))
       return;
-    }
-
     setLoading(true);
-    setError('');
+      setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/deleteRooms/${roomId}`, {
-        method: 'DELETE'
+      const token = localStorage.getItem('token');
+      const response = await axios.delete(`${API_BASE_URL}/deleteRooms/${roomId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const msg = await response.data
+      if(!msg.message){
+        console.log("msg not found")
       }
+      toast.success(`${msg.message}`)
 
       console.log('Room deleted successfully');
+      
 
       // Refresh the rooms list
       await fetchAllRooms();
@@ -326,14 +330,14 @@ const AddRoomsPage = () => {
                     <div className="flex gap-2">
                       <button
                         onClick={() => editRoom(room)}
-                        className="text-blue-500 hover:text-blue-700 text-sm font-medium transition-colors duration-200 disabled:opacity-50"
+                        className="text-blue-500 hover:text-blue-700 text-sm font-medium transition-colors duration-200 disabled:opacity-50 cursor-pointer"
                         disabled={loading}
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => deleteRoom(room._id || room.id)}
-                        className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors duration-200 disabled:opacity-50"
+                        onClick={() => deleteRoom(room._id)}
+                        className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors duration-200 disabled:opacity-50 cursor-pointer"
                         disabled={loading}
                       >
                         Delete
@@ -361,7 +365,7 @@ const AddRoomsPage = () => {
                   <p className="text-sm text-gray-600 line-clamp-2">{room.description}</p>
 
                   {/* Features */}
-                  {room.features && room.features.length > 0 && (
+                  {room.features.length > 0 && (
                     <div className="mt-3">
                       <p className="text-xs font-medium text-gray-700 mb-1">Features:</p>
                       <div className="flex flex-wrap gap-1">
