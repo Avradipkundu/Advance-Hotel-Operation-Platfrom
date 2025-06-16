@@ -1,15 +1,16 @@
 // src/components/Profile.jsx
 import React, { useState } from 'react';
-import { X, Edit, Save, User, Mail, Phone, MapPin, Lock, Eye, EyeOff } from 'lucide-react';
+import { X, Edit, Save, User, Mail, Phone, MapPin, Lock } from 'lucide-react';
+import axios from 'axios'
+import { toast } from 'react-toastify';
 
 const Profile = ({ isOpen, onClose, user, setUser, onLogout }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState(user);
   const [showPassword, setShowPassword] = useState(false);
   const [passwords, setPasswords] = useState({
-    current: '',
-    new: '',
-    confirm: ''
+    newPassword: '',
+    confirmPassword: ''
   });
 
   if (!isOpen) return null;
@@ -19,11 +20,27 @@ const Profile = ({ isOpen, onClose, user, setUser, onLogout }) => {
     setEditedUser({ ...user });
   };
 
-  const handleSave = () => {
-    setUser(editedUser);
-    setIsEditing(false);
-    // Here you would typically make an API call to update user data
-  };
+  const handleSave = async (e) => {
+    e.preventDefault();    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put('http://localhost:8000/api/updateMyProfile', editedUser,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if (response.status === 200) {
+        setUser(response.data);
+        setIsEditing(false);
+        toast.success('Profile updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error(error.response?.data?.message || 'Failed to update profile');
+    }
+  }
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -44,18 +61,29 @@ const Profile = ({ isOpen, onClose, user, setUser, onLogout }) => {
     }));
   };
 
-  const handlePasswordUpdate = () => {
-    if (passwords.new !== passwords.confirm) {
-      alert('New passwords do not match!');
-      return;
-    }
-    // Here you would make an API call to update password
-    alert('Password updated successfully!');
-    setPasswords({ current: '', new: '', confirm: '' });
+  const handlePasswordUpdate = async(e) => {
+    e.preventDefault()
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put('http://localhost:8000/api/updateMyProfile', passwords,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if (response.status === 200) {
+        setPasswords(passwords)
+        toast.success("Password updateed successfully")
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error(error.response?.data?.message || 'Failed to update profile');
+    }    
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
@@ -180,47 +208,29 @@ const Profile = ({ isOpen, onClose, user, setUser, onLogout }) => {
               Change Password
             </h4>
 
-            <div className="space-y-3">
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Current Password"
-                  value={passwords.current}
-                  onChange={(e) =>
-                    handlePasswordChange("current", e.target.value)
-                  }
-                  className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
+            <div className="space-y-3">              
 
               <input
                 type="password"
                 placeholder="New Password"
-                value={passwords.new}
-                onChange={(e) => handlePasswordChange("new", e.target.value)}
+                value={passwords.newPassword}
+                onChange={(e) => handlePasswordChange("newPassword", e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
 
               <input
                 type="password"
                 placeholder="Confirm New Password"
-                value={passwords.confirm}
+                value={passwords.confirmPassword}
                 onChange={(e) =>
-                  handlePasswordChange("confirm", e.target.value)
+                  handlePasswordChange("confirmPassword", e.target.value)
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
 
               <button
                 onClick={handlePasswordUpdate}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 cursor-pointer"
               >
                 <Lock size={18} />
                 <span>Update Password</span>
@@ -233,14 +243,14 @@ const Profile = ({ isOpen, onClose, user, setUser, onLogout }) => {
             <div className="flex space-x-4 pt-4 border-t border-gray-200">
               <button
                 onClick={handleSave}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 cursor-pointer"
               >
                 <Save size={18} />
                 <span>Save Changes</span>
               </button>
               <button
                 onClick={handleCancel}
-                className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
+                className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -251,7 +261,7 @@ const Profile = ({ isOpen, onClose, user, setUser, onLogout }) => {
           <div className="pt-4 border-t border-gray-200">
             <button
               onClick={onLogout}
-              className="w-full bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
+              className="w-full bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
             >
               Logout
             </button>

@@ -161,7 +161,7 @@ const AdminDashboard = () => {
             <StatCard title="Total Rooms" value={roomCount} color="bg-blue-50" textColor="text-blue-700" />
             <StatCard title="Available Rooms" value={stats.availableRooms} color="bg-green-50" textColor="text-green-700" />
             <StatCard title="Active Bookings" value={stats.bookings} color="bg-yellow-50" textColor="text-yellow-700" />
-            <StatCard title="Total Revenue" value={`₹${stats.revenue.toLocaleString()}`} color="bg-purple-50" textColor="text-purple-700" />
+            {/* <StatCard title="Total Revenue" value={`₹${stats.revenue.toLocaleString()}`} color="bg-purple-50" textColor="text-purple-700" /> */}
           </div>
 
           {/* Management Sections */}

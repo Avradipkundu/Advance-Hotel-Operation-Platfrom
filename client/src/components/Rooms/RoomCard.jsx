@@ -31,7 +31,7 @@ const RoomCard = ({
         <button 
         onClick={() => handleBookNow(roomNo, name, price)}
         disabled={isLoading}
-        className="px-4 py-1 bg-gray-100 rounded font-medium text-gray-700 hover:bg-blue-100 transition">
+        className="px-4 py-1 bg-gray-100 rounded font-medium text-gray-700 hover:bg-blue-100 transition cursor-pointer">
           {isLoading ? "Processing..." : "Book Now"}
         </button>
       </div>

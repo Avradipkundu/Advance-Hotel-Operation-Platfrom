@@ -4,6 +4,7 @@ import RoomCard from "../Rooms/RoomCard";
 import bgImage from '../../assets/hotel.jpg';
 import { useState, useEffect } from "react";
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
     const [rooms, setRooms] = useState([]);
@@ -28,13 +29,10 @@ const Home = () => {
     useEffect(() => {
         fetchRooms();
     }, []);
-
+    const navigate = useNavigate()
     const handleBookNow = async (roomNo, roomName, price) => {
         setIsLoading(roomNo);
-        setTimeout(() => {
-            setIsLoading(null);
-            alert(`Successfully initiated booking for ${roomName}!\nPrice: $${price}/night\nBooking ID: ${roomId}-${Date.now()}`);
-        }, 1500);
+        navigate('/rooms')
     };
     return (
         <>

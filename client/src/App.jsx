@@ -4,6 +4,7 @@ import Layout from './Layout'
 import Home from './components/Home/Home'
 import RoomPages from './pages/RoomPages'
 import { ToastContainer } from 'react-toastify'
+import ContactUs from './pages/ContactUs'
 
 function App() {
 
@@ -14,6 +15,7 @@ function App() {
           <Route path='/' element={<Layout />}>
             <Route path='' element={<Home />} />
             <Route path='rooms' element={<RoomPages />} />            
+            <Route path='contactUs' element={<ContactUs />} />            
           </Route>
         </Routes>
       </BrowserRouter>

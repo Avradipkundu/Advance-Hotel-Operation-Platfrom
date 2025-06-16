@@ -402,7 +402,7 @@ const AddRoomsPage = () => {
 
       {/* Popup Form */}
       {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-xl w-11/12 max-w-2xl max-h-screen overflow-y-auto shadow-2xl">
             <div className="flex justify-between items-center p-5 border-b border-gray-200">
               <h2 className="m-0 text-gray-800 text-2xl font-semibold">

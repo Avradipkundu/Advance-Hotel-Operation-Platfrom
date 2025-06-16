@@ -6,15 +6,14 @@ const bcrypt = require('bcrypt')
 const createUser = async (req, res) => {
   try {
     const { name, email, password, confirmPassword } = req.body
-    
+
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return res.status(400).json({ error: 'Email already exists' })
     }
 
-    if(password!==confirmPassword)
-    {
-      return res.status(400).json({message:'Password mismatch'});
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: 'Password mismatch' });
     }
 
     if (!email || !password) {
@@ -75,15 +74,22 @@ const myProfile = async (req, res) => {
 const updateMyProfile = async (req, res) => {
   try {
     const userData = req.user.id
-    const { name, email, phone, address } = req.body;
+    const { name, email, phone, address, newPassword, confirmPassword } = req.body;
     const user = await User.findById(userData)
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: 'Password mismatch' });
     }
     if (name) user.name = name;
     if (email) user.email = email;
     if (phone) user.phone = phone;
     if (address) user.address = address;
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    if(hashedPassword) user.password = hashedPassword
+
     await user.save();
     return res.status(200).json({ user });
   } catch (error) {

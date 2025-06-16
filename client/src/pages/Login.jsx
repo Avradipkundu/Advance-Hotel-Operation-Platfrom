@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {toast} from 'react-toastify'
 import { X, Lock, Eye, EyeOff, Mail, CircleUserRound } from 'lucide-react';
 
-const Login = ({ isOpen, onClose }) => {
+const Login = ({ isOpen, onClose, isAuthenticated }) => {
     const [isSignUp, setIsSignUp] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
@@ -61,6 +61,7 @@ const Login = ({ isOpen, onClose }) => {
             toast.success("Registration successful! You can now log in.");
             setIsSignUp(false);
         } else {
+            isAuthenticated(true)
             toast.success("Login successful!");
             onClose(); // or navigate to dashboard
         }

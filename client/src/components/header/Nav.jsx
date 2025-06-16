@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AlignJustify, X, Hotel, User } from 'lucide-react'
 import Login from '../../pages/Login';
 import Profile from '../../pages/Profile';
@@ -11,6 +11,7 @@ const LandingNavbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+   const [isLoggedIn, setIsLoggedIn] = useState(false);
    const [user, setUser] = useState({
     name: '',
     email: '',
@@ -18,14 +19,13 @@ const LandingNavbar = () => {
     address: ''
   });
 
-
+  const navigate = useNavigate()
   const location = useLocation()
 
   const navLinks = [
     { name: "Home", path: "" },
-    { name: "Rooms", path: "rooms" },
-    { name: "Features", path: "features" },
-    { name: "About", path: "about" }
+    { name: "Rooms", path: "rooms" },    
+    { name: "ContactUs", path: "contactUs" }
   ];
 
   useEffect(() => {
@@ -75,6 +75,9 @@ const LandingNavbar = () => {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUser({ name: '', email: '', phone: '', address: '' });
+    localStorage.removeItem('token')
+    navigate('/')
+    setIsAuthenticated(false)
     setShowProfile(false);
     setShowMobileMenu(false);
   };
@@ -90,7 +93,7 @@ const LandingNavbar = () => {
             <div className='absolute pl-3 inset-y-0 left-0 flex items-center h-full'>
               <Hotel className='text-amber-500 pointer-events-none' />
               <Link to="/" className="text-2xl font-bold text-amber-500 ">
-                HotelTipTop
+                HotelStay
               </Link>
             </div>
           </div>
@@ -124,16 +127,16 @@ const LandingNavbar = () => {
             <div className="lg:ml-4 mt-2 lg:mt-0 px-4">
               <div className="lg:ml-4 mt-2 lg:mt-0 px-4">
                 {isAuthenticated ? (
-                  <Link
+                  <button
                     onClick={openProfile}
-                    className={`inline-block font-bold px-4 py-2 rounded-lg transition duration-300 ease-in-out hover:scale-105 shadow ${scrolled
+                    className={`inline-flex items-center font-bold px-4 py-2 rounded-lg transition duration-300 ease-in-out hover:scale-105 shadow ${scrolled
                       ? 'bg-indigo-500 text-white hover:bg-indigo-700'
                       : 'bg-white text-indigo-600 hover:bg-indigo-100'
                       }`}
                   >
                     <User size={18} />
                     <span>Profile</span>
-                  </Link>
+                  </button>
                 ) : (
                   <button
                     onClick={openLogin}
@@ -153,7 +156,7 @@ const LandingNavbar = () => {
         </div>
       </nav >
       {/* Login Modal */}
-      <Login isOpen={showLogin} onClose={closeLogin} />
+      <Login isOpen={showLogin} onClose={closeLogin} isAuthenticated={setIsAuthenticated} />
 
       {/* Profile Modal */}
       <Profile
