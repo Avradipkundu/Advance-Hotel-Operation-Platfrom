@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AlignJustify, X, Hotel, User } from 'lucide-react'
 import Login from '../../pages/Login';
 import Profile from '../../pages/Profile';
+import axios from 'axios';
 
 const LandingNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,26 +12,37 @@ const LandingNavbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-   const [isLoggedIn, setIsLoggedIn] = useState(false);
-   const [user, setUser] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: ''
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState([]);
 
   const navigate = useNavigate()
   const location = useLocation()
 
   const navLinks = [
     { name: "Home", path: "" },
-    { name: "Rooms", path: "rooms" },    
+    { name: "Rooms", path: "rooms" },
     { name: "ContactUs", path: "contactUs" }
   ];
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsAuthenticated(!!token); // If token exists, user is logged in
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        setIsAuthenticated(!!token); // If token exists, user is logged in
+        const response = await axios.get('http://localhost:8000/api/userProfile',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        console.log(response.data.user)
+        setUser(response.data.user);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    }
+    fetchUserProfile()
   }, []);
 
 
@@ -74,7 +86,7 @@ const LandingNavbar = () => {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setUser({ name: '', email: '', phone: '', address: '' });
+    // setUser({ name: '', email: '', phone: '', address: '' });
     localStorage.removeItem('token')
     navigate('/')
     setIsAuthenticated(false)
