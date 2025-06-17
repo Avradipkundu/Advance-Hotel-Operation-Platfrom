@@ -13,7 +13,7 @@ const LandingNavbar = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState([]);
+  const [user, setUser] = useState(null);
 
   const navigate = useNavigate()
   const location = useLocation()

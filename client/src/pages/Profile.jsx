@@ -6,8 +6,8 @@ import { toast } from 'react-toastify';
 
 const Profile = ({ isOpen, onClose, user, setUser, onLogout }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState(user);
-  const [showPassword, setShowPassword] = useState(false);
+  const [editedUser, setEditedUser] = useState(null);
+  const [showPassword, setShowPassword] = useState(false); 
   const [passwords, setPasswords] = useState({
     newPassword: '',
     confirmPassword: ''
@@ -32,7 +32,7 @@ const Profile = ({ isOpen, onClose, user, setUser, onLogout }) => {
         }
       );
       if (response.status === 200) {
-        setUser(response.data);
+        setUser(response.data.user);
         setIsEditing(false);
         toast.success('Profile updated successfully!');
       }
@@ -54,33 +54,33 @@ const Profile = ({ isOpen, onClose, user, setUser, onLogout }) => {
     }));
   };
 
-  const handlePasswordChange = (field, value) => {
-    setPasswords(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  // const handlePasswordChange = (field, value) => {
+  //   setPasswords(prev => ({
+  //     ...prev,
+  //     [field]: value
+  //   }));
+  // };
 
-  const handlePasswordUpdate = async(e) => {
-    e.preventDefault()
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.put('http://localhost:8000/api/updateMyProfile', passwords,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      if (response.status === 200) {
-        setPasswords(passwords)
-        toast.success("Password updateed successfully")
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error(error.response?.data?.message || 'Failed to update profile');
-    }    
-  };
+  // const handlePasswordUpdate = async(e) => {
+  //   e.preventDefault()
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const response = await axios.put('http://localhost:8000/api/updateMyProfile', passwords,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`
+  //         }
+  //       }
+  //     );
+  //     if (response.status === 200) {
+  //       setPasswords(passwords)
+  //       toast.success("Password updateed successfully")
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating profile:', error);
+  //     toast.error(error.response?.data?.message || 'Failed to update profile');
+  //   }    
+  // };
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -213,28 +213,28 @@ const Profile = ({ isOpen, onClose, user, setUser, onLogout }) => {
               <input
                 type="password"
                 placeholder="New Password"
-                value={passwords.newPassword}
-                onChange={(e) => handlePasswordChange("newPassword", e.target.value)}
+                value={editedUser?.newPassword || ""}
+                onChange={(e) => handleInputChange("newPassword", e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
 
               <input
                 type="password"
                 placeholder="Confirm New Password"
-                value={passwords.confirmPassword}
+                value={editedUser?.confirmPassword || ""}
                 onChange={(e) =>
-                  handlePasswordChange("confirmPassword", e.target.value)
+                  handleInputChange("confirmPassword", e.target.value)
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
 
-              <button
+              {/* <button
                 onClick={handlePasswordUpdate}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 cursor-pointer"
               >
                 <Lock size={18} />
                 <span>Update Password</span>
-              </button>
+              </button> */}
             </div>
           </div>
 
