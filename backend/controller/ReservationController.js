@@ -1,13 +1,18 @@
 const Room = require('../models/Room.js')
 const User = require('../models/User.js')
 const Admin = require('../models/Admin.js')
+const Staff = require('../models/Staff.js')
 const Reservation = require('../models/Reservation.js')
 
 const reservations = async (req, res) => {
     try {
         const roomId = req.params.id
         const userId = req.user.id
-        const { checkInDate, checkOutDate, guests } = req.body
+        const { checkInDate, checkOutDate, guests, maidId} = req.body
+
+         if (maidId) {
+          await Staff.findByIdAndUpdate(maidId, {status: "in-progress", room: roomId})
+        }
 
         const room = await Room.findById(roomId)
         if (!room) {
