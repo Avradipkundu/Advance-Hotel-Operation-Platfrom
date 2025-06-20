@@ -5,7 +5,7 @@ import {
   Bed,
   Calendar,
   Users,  
-  Settings,
+  ContactRound,
   LogOut,
   Menu,
   X,  
@@ -57,7 +57,7 @@ const AdminDashboard = () => {
     { name: 'Dashboard', href: '/admin', icon: Home },
     { name: 'Rooms', href: '/admin/rooms', icon: Bed },
     { name: 'Bookings', href: '/admin/bookings', icon: Calendar },    
-    { name: 'Settings', href: '/admin/settings', icon: Settings },
+    { name: 'Staff', href: '/admin/staff', icon: ContactRound },
   ];
 
   if (loading) {

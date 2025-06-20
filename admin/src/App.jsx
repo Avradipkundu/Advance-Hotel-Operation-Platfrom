@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import AddRoomsPage from './components/AddRooms'
 import ProtectedRoutes from './utils/PrivateRoute'
 import Bookings from './components/Bookings'
+import Staff from './components/Staff'
 
 function App() {  
 
@@ -16,6 +17,7 @@ function App() {
           <Route path='/dashboard' element={<ProtectedRoutes><Dashboard /></ProtectedRoutes>}/>          
           <Route path='/admin/rooms' element={<AddRoomsPage/>}/>          
           <Route path='/admin/bookings' element={<Bookings/>}/>          
+          <Route path='/admin/staff' element={<Staff/>}/>          
         </Routes>
       </BrowserRouter>
       <ToastContainer/>
