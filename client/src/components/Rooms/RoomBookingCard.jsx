@@ -29,7 +29,7 @@ const RoomBookingCard = ({
                     {type}
                 </div>
                 <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-                    ${price}
+                    ₹{price}
                 </div>
             </div>
 
@@ -79,7 +79,7 @@ const RoomBookingCard = ({
                     <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pt-4 border-t border-gray-100">
                         <div>
                             <div className="text-3xl font-bold text-gray-800 mb-1">
-                                ${price}
+                                ₹{price}
                                 <span className="text-lg font-normal text-gray-500 ml-1">/night</span>
                             </div>
                             <p className="text-sm text-gray-600">Best price guarantee</p>

@@ -25,7 +25,7 @@ const RoomCard = ({
       </div>      
       <div className="flex items-center justify-between">
         <span className="text-xl font-bold text-gray-800">
-          ${price}
+          ₹{price}
           <span className="text-base font-normal text-gray-500">/night</span>
         </span>
         <button 
