@@ -117,7 +117,7 @@ const Staff = () => {
           type="submit"
           className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition cursor-pointer"
         >
-          {editingId ? "Update Room" : "Add Room"}
+          {editingId ? "Update Staff" : "Add Staff"}
         </button>
         {editingId && (
           <button
@@ -141,8 +141,7 @@ const Staff = () => {
             <tr>
               <th className="py-2">Staff Name</th>
               <th className="py-2">Staff No</th>
-              <th className="py-2">Room</th>
-              <th className="py-2">TaskType</th>
+              <th className="py-2">Room</th>              
               <th className="py-2">Status</th>              
               <th className="py-2">Action</th>              
             </tr>
@@ -152,8 +151,7 @@ const Staff = () => {
               <tr key={staff._id} className="border-t">
                 <td className="py-2">{staff.name}</td>
                 <td className="py-2">{staff.no}</td>
-                <td className="py-2">{staff.room ? `${staff.room.name} (${staff.room.roomNo})` : "Unassigned"}</td>
-                <td className="py-2">{staff.taskType}</td>
+                <td className="py-2">{staff.room ? `${staff.room.name} (${staff.room.roomNo})` : "Unassigned"}</td>                
                 <td className="py-2 text-green-600">{staff.status}</td>                
                 <td className="py-2 space-x-2">
                   <button
